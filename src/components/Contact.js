@@ -1,6 +1,37 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 const Contact = () => {
+  const [result, setResult] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const onSubmit = async (event) => {
+    event.preventDefault();
+    setIsSubmitting(true);
+    setResult("Sending...");
+
+    const formData = new FormData(event.target);
+    formData.append("access_key", "fb9e8bf9-d1a4-49f1-9276-e5479898b851");
+
+    try {
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        body: formData
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setResult("Message sent successfully!");
+        event.target.reset();
+      } else {
+        setResult(data.message || "Something went wrong. Please try again.");
+      }
+    } catch (error) {
+      setResult("Failed to send message. Please check your connection.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
   return (
     <>
       <style>{`
@@ -151,7 +182,7 @@ const Contact = () => {
               <h3 className="contact-form-title">Send a Message</h3>
               <p className="contact-form-sub">I'll get back to you as soon as possible.</p>
 
-              <form action="https://getform.io/f/ayvvrvmb" method="POST">
+              <form onSubmit={onSubmit}>
                 <div className="form-group">
                   <input
                     type="text"
@@ -179,7 +210,21 @@ const Contact = () => {
                     required
                   />
                 </div>
-                <button type="submit" className="btn-submit">Send Message →</button>
+                <button type="submit" className="btn-submit" disabled={isSubmitting}>
+                  {isSubmitting ? "Sending..." : "Send Message →"}
+                </button>
+                {result && (
+                  <p className="form-status-msg" style={{
+                    marginTop: '1.25rem',
+                    fontFamily: 'Inter, sans-serif',
+                    fontSize: '0.88rem',
+                    fontWeight: 600,
+                    color: result.includes('successfully') ? '#10B981' : '#f59e0b',
+                    textAlign: 'center'
+                  }}>
+                    {result}
+                  </p>
+                )}
               </form>
             </div>
           </div>
