@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import pavi from '../assets/pavi.jpeg';
 import { TypeAnimation } from 'react-type-animation';
 import { motion } from 'framer-motion';
@@ -12,6 +12,113 @@ const Hero = () => {
       y: e.clientY - rect.top
     });
   };
+
+  useEffect(() => {
+    const canvas = document.getElementById('hero-particles');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let animationFrameId;
+
+    let width = (canvas.width = canvas.offsetWidth);
+    let height = (canvas.height = canvas.offsetHeight);
+
+    const handleResize = () => {
+      if (!canvas) return;
+      width = canvas.width = canvas.offsetWidth;
+      height = canvas.height = canvas.offsetHeight;
+    };
+    window.addEventListener('resize', handleResize);
+
+    const particles = [];
+    const particleCount = 45;
+
+    for (let i = 0; i < particleCount; i++) {
+      particles.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        vx: (Math.random() - 0.5) * 0.4,
+        vy: (Math.random() - 0.5) * 0.4,
+        radius: Math.random() * 1.5 + 0.5,
+      });
+    }
+
+    let mouse = { x: null, y: null };
+    const handleCanvasMouseMove = (e) => {
+      const rect = canvas.getBoundingClientRect();
+      mouse.x = e.clientX - rect.left;
+      mouse.y = e.clientY - rect.top;
+    };
+    const handleCanvasMouseLeave = () => {
+      mouse.x = null;
+      mouse.y = null;
+    };
+    
+    const section = canvas.parentElement;
+    if (section) {
+      section.addEventListener('mousemove', handleCanvasMouseMove);
+      section.addEventListener('mouseleave', handleCanvasMouseLeave);
+    }
+
+    const animate = () => {
+      ctx.clearRect(0, 0, width, height);
+      ctx.fillStyle = 'rgba(107, 177, 242, 0.35)';
+      ctx.strokeStyle = 'rgba(107, 177, 242, 0.04)';
+      ctx.lineWidth = 0.5;
+
+      particles.forEach((p, idx) => {
+        p.x += p.vx;
+        p.y += p.vy;
+
+        if (p.x < 0 || p.x > width) p.vx *= -1;
+        if (p.y < 0 || p.y > height) p.vy *= -1;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        for (let j = idx + 1; j < particles.length; j++) {
+          const p2 = particles[j];
+          const dx = p.x - p2.x;
+          const dy = p.y - p2.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (dist < 110) {
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.stroke();
+          }
+        }
+
+        if (mouse.x !== null && mouse.y !== null) {
+          const dx = p.x - mouse.x;
+          const dy = p.y - mouse.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 130) {
+            ctx.strokeStyle = `rgba(107, 177, 242, ${0.12 * (1 - dist / 130)})`;
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(mouse.x, mouse.y);
+            ctx.stroke();
+            ctx.strokeStyle = 'rgba(107, 177, 242, 0.04)';
+          }
+        }
+      });
+
+      animationFrameId = requestAnimationFrame(animate);
+    };
+
+    animate();
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      if (section) {
+        section.removeEventListener('mousemove', handleCanvasMouseMove);
+        section.removeEventListener('mouseleave', handleCanvasMouseLeave);
+      }
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, []);
   return (
     <>
       <style>{`
@@ -65,6 +172,8 @@ const Hero = () => {
           grid-template-columns: 1fr 1fr;
           gap: 4rem;
           align-items: center;
+          position: relative;
+          z-index: 2;
         }
         @media (max-width: 1024px) {
           .hero-inner { grid-template-columns: 1fr; text-align: center; }
@@ -262,6 +371,7 @@ const Hero = () => {
           background: `radial-gradient(circle 400px at ${mousePos.x}px ${mousePos.y}px, rgba(107, 177, 242, 0.07), transparent), #061327`
         }}
       >
+        <canvas id="hero-particles" style={{ position: 'absolute', inset: 0, pointerEvents: 'none', opacity: 0.5, zIndex: 1 }} />
         <div className="hero-inner">
           <motion.div
             className="hero-text"
