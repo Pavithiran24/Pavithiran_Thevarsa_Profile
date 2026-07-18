@@ -132,7 +132,9 @@ const Hero = () => {
           position: relative;
           overflow: hidden;
           padding: 7rem 2.5rem 4rem;
-          id: home;
+          width: 100%;
+          max-width: 100%;
+          box-sizing: border-box;
         }
         @keyframes float-circle-1 {
           0%, 100% { transform: translate(0, 0) scale(1); }
@@ -147,8 +149,8 @@ const Hero = () => {
           position: absolute;
           top: -20%;
           right: -10%;
-          width: 600px;
-          height: 600px;
+          width: min(600px, 70vw);
+          height: min(600px, 70vw);
           background: radial-gradient(circle, rgba(107, 177, 242, 0.08) 0%, transparent 70%);
           pointer-events: none;
           animation: float-circle-1 20s infinite alternate ease-in-out;
@@ -158,8 +160,8 @@ const Hero = () => {
           position: absolute;
           bottom: -10%;
           left: -5%;
-          width: 400px;
-          height: 400px;
+          width: min(400px, 55vw);
+          height: min(400px, 55vw);
           background: radial-gradient(circle, rgba(30, 107, 184, 0.04) 0%, transparent 70%);
           pointer-events: none;
           animation: float-circle-2 15s infinite alternate ease-in-out;
@@ -176,11 +178,22 @@ const Hero = () => {
           z-index: 2;
         }
         @media (max-width: 1024px) {
-          .hero-inner { grid-template-columns: 1fr; text-align: center; }
+          .hero-root { padding: 6rem 1.75rem 3.5rem; }
+          .hero-inner { grid-template-columns: 1fr; text-align: center; gap: 2.5rem; }
           .hero-text { order: 2; align-items: center; }
           .hero-image-wrap { order: 1; justify-content: center; }
           .hero-ctas { justify-content: center !important; }
           .hero-badge { align-self: center !important; }
+        }
+        @media (max-width: 600px) {
+          .hero-root { padding: 5.5rem 1.25rem 3rem; }
+          .hero-desc { margin-bottom: 2rem; }
+          .hero-ctas { width: 100%; }
+          .hero-ctas .btn-primary,
+          .hero-ctas .btn-outline { flex: 1 1 auto; text-align: center; }
+          /* Calm the floating background so it never overflows on small screens */
+          .hero-root::before,
+          .hero-root::after { animation: none; }
         }
         .hero-text {
           display: flex;
