@@ -419,7 +419,7 @@ const Hero = () => {
 
             <div className="hero-ctas">
               <a href="#work" className="btn-primary">View Projects</a>
-               <a href="/Pavithiran_Thevarasa_CV.pdf" download="Pavithiran_Thevarasa_CV.pdf" className="btn-outline">Download CV</a>
+               <a href="/Pavithiran_Thevarasa_CV.pdf?v=20260718" download="Pavithiran_Thevarasa_CV.pdf" className="btn-outline">Download CV</a>
             </div>
           </motion.div>
 
